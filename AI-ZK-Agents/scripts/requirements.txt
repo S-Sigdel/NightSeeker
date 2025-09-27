@@ -1,0 +1,8 @@
+flask
+python-dotenv
+pdfplumber
+openai
+PyGithub
+GitPython
+nbformat
+requests
