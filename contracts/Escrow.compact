@@ -1,0 +1,55 @@
+pragma language_version 0.16;
+
+import CompactStandardLibrary;
+
+// This contract demonstrates a privacy-preserving escrow using commitments and zero-knowledge proofs.
+// Instead of storing full escrow data on-chain, we store a cryptographic commitment to the escrow state.
+// Actions (like releasing payment) require a ZK proof that the user knows the underlying data and that it satisfies contract rules.
+
+// --- Ledger State ---
+
+// Store the commitment to the escrow data (e.g., hash of all escrow details)
+export ledger escrowCommitment: Bytes<32>;
+
+// Store nullifiers to prevent double-release (each nullifier is unique per escrow release)
+export ledger escrowNullifiers: Set<Bytes<32>>;
+
+// --- Witnesses ---
+
+// The DApp/user provides the secret escrow data off-chain as a witness.
+// This could be a hash preimage or the actual escrow details, depending on the commitment scheme.
+witness escrowSecret(): Bytes<32>;
+
+// The DApp/user provides a nullifier (unique per release) as a witness.
+witness releaseNullifier(): Bytes<32>;
+
+// --- Circuits ---
+
+// Fund the escrow: store a new commitment on-chain.
+// The commitment is generated off-chain (e.g., persistentHash of escrow details and randomness).
+export circuit fundEscrow(commitment: Bytes<32>): [] {
+  // Store the commitment to the escrow data.
+  escrowCommitment = commitment;
+}
+
+// Release payment: requires a ZK proof that the user knows the escrow data and that it matches the commitment.
+// Also checks that the nullifier has not been used before (prevents double-release).
+export circuit releasePayment(): [] {
+  // Prove knowledge of escrowSecret and that it matches the on-chain commitment.
+  assert(escrowCommitment == persistentHash<[Bytes<32>]>([escrowSecret()]), "Invalid escrow proof");
+
+  // Prevent double-release by checking the nullifier set.
+  assert(!escrowNullifiers.member(releaseNullifier()), "Escrow already released");
+
+  // Insert the nullifier to mark this escrow as released.
+  escrowNullifiers.insert(disclose(releaseNullifier()));
+
+  // Actual payment logic (e.g., sending funds) is not implemented here, as Compact does not support direct value transfers.
+  // This would be handled off-chain or by integrating with other Midnight primitives.
+}
+
+// Note:
+// - The actual escrow data (jobId, employer, worker, amount, etc.) is never revealed on-chain.
+// - The DApp/user generates the commitment and the ZK proof off-chain, and only submits the proof and public data.
+// - This pattern is known as the "commitment/nullifier" pattern and is used for privacy-preserving authentication and state updates.
+// - See [Commitment/nullifier pattern](https://docs.midnight.network/develop/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern) for more details.

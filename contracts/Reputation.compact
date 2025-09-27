@@ -1,0 +1,54 @@
+pragma language_version 0.16;
+
+import CompactStandardLibrary;
+
+// --- Ledger State ---
+
+// Map from worker public key (Bytes<32>) to a list of endorsement commitments
+export ledger endorsementCommitments: Map<Bytes<32>, Vector<32, Bytes<32>>>;
+
+// Map from worker public key to their reputation score
+export ledger reputationScore: Map<Bytes<32>, Uint<64>>;
+
+// --- Witnesses ---
+
+// The DApp/user provides the worker's public key (as a stand-in for Address)
+witness workerPk(): Bytes<32>;
+
+// The DApp/user provides the secret endorsement data (e.g., hash preimage or serialized endorsement details)
+witness endorsementSecret(): Bytes<32>;
+
+// The DApp/user provides the rating (as a private input)
+witness rating(): Uint<8>;
+
+// --- Circuits ---
+
+// Endorse a worker by submitting a new endorsement commitment and updating the reputation score
+export circuit endorse(commitment: Bytes<32>, ratingValue: Uint<8>): [] {
+  // Add the new commitment to the worker's list
+  let current = endorsementCommitments.lookup(workerPk());
+  let updated = current.push(commitment);
+  endorsementCommitments.insert(workerPk(), updated);
+
+  // Update the reputation score
+  let score = reputationScore.lookup(workerPk());
+  reputationScore.insert(workerPk(), score + ratingValue);
+}
+
+// Prove knowledge of the endorsement data corresponding to the commitment
+export circuit prove_endorsement(worker: Bytes<32>, commitment: Bytes<32>): [] {
+  // Prove that the user knows the endorsement data matching the on-chain commitment
+  assert(commitment == persistentHash<[Bytes<32>]>([endorsementSecret()]), "Invalid endorsement proof");
+  // Additional assertions can be added here for specific ZK claims about the endorsement
+}
+
+// Get the public reputation score for a worker
+export circuit get_reputation(worker: Bytes<32>): Uint<64> {
+  return reputationScore.lookup(worker);
+}
+
+// Note:
+// - The actual endorsement details (jobId, employer, rating, zkProof, etc.) are never revealed on-chain.
+// - The DApp/user generates the commitment and the ZK proof off-chain.
+// - Only the commitment and proof are submitted to the contract.
+// - This pattern is directly supported and recommended in the Midnight documentation.

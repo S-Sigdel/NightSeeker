@@ -1,0 +1,40 @@
+pragma language_version 0.16;
+
+import CompactStandardLibrary;
+
+// --- Ledger State ---
+
+// Map from job ID to a commitment representing the job data
+export ledger jobCommitments: Map<Uint<64>, Bytes<32>>;
+
+// Counter for job IDs
+export ledger job_count: Counter;
+
+// --- Witnesses ---
+
+// The DApp/user provides their public key (as a stand-in for Address)
+witness employerPk(): Bytes<32>;
+
+// The DApp/user provides the secret job data (e.g., hash preimage or serialized job details)
+witness jobSecret(): Bytes<32>;
+
+// --- Circuits ---
+
+// Create a new job by submitting a commitment to the job data
+export circuit create_job(commitment: Bytes<32>): [] {
+  jobCommitments.insert(job_count, commitment);
+  job_count.increment(1);
+}
+
+// Prove knowledge of the job data corresponding to the commitment
+// (Extend this circuit to prove properties about the job, e.g., "budget ≥ X", "isActive == true", etc.)
+export circuit prove_job(id: Uint<64>): [] {
+  assert(jobCommitments.lookup(id) == persistentHash<[Bytes<32>]>([jobSecret()]), "Invalid job proof");
+  // Additional assertions can be added here for specific ZK claims about the job
+}
+
+// Note:
+// - The actual job details (description, requiredSkills, budget, etc.) are never revealed on-chain.
+// - The DApp/user generates the commitment and the ZK proof off-chain.
+// - Only the commitment and proof are submitted to the contract.
+// - This pattern is directly supported and recommended in the Midnight documentation.

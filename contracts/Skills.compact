@@ -1,0 +1,37 @@
+pragma language_version 0.16;
+
+import CompactStandardLibrary;
+
+// --- Ledger State ---
+
+// Map from user public key (Bytes<32>) to a commitment representing their skills
+export ledger skillCommitments: Map<Bytes<32>, Bytes<32>>;
+
+// --- Witnesses ---
+
+// The DApp/user provides their public key (as a stand-in for Address)
+witness userPk(): Bytes<32>;
+
+// The DApp/user provides the secret (e.g., hash preimage or serialized skills data)
+witness skillsSecret(): Bytes<32>;
+
+// --- Circuits ---
+
+// Add or update a user's skills by submitting a new commitment
+export circuit add_skill(commitment: Bytes<32>): [] {
+  skillCommitments.insert(userPk(), commitment);
+}
+
+// Prove knowledge of the skills data corresponding to the commitment
+// (You can extend this circuit to prove properties about the skills, e.g., "I have a skill named X with confidence ≥ Y")
+export circuit prove_skill(): [] {
+  // Prove that the user knows the skills data matching the on-chain commitment
+  assert(skillCommitments.lookup(userPk()) == persistentHash<[Bytes<32>]>([skillsSecret()]), "Invalid skill proof");
+  // Additional assertions can be added here for specific ZK claims about the skills
+}
+
+// Note:
+// - The actual list of skills is never revealed on-chain.
+// - The DApp/user generates the commitment and the ZK proof off-chain.
+// - Only the commitment and proof are submitted to the contract.
+// - This pattern follows the commitment-based privacy approach described in the knowledge sources [How to keep data private](https://docs.midnight.network/develop/how-midnight-works/keeping-data-private#hashes-and-commitments) and [Commitment/nullifier pattern](https://docs.midnight.network/develop/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern).
