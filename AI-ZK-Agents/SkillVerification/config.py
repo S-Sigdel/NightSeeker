@@ -2,10 +2,9 @@ import os
 import math
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise RuntimeError("Set OPENAI_API_KEY environment variable before running.")
+USE_OPENAI = bool(OPENAI_API_KEY)
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # optional
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  #
 
 MAX_REPOS = 12
 WEIGHTS = {"repo": 0.6, "notebook": 0.25, "resume": 0.15}

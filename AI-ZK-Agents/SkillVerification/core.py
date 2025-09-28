@@ -6,6 +6,7 @@ from .github_analyzer import analyze_github_user
 from .kaggle_analyzer import analyze_kaggle_notebook
 from .llm_utils import canonicalize_skills_with_embeddings
 from .scoring import aggregate_and_score
+from .config import BASE_SKILL_LEXICON
 
 def run_for_candidate(candidate_id, resume_paths=None, github_username=None, kaggle_urls=None):
     skills_map = defaultdict(list)
@@ -34,14 +35,17 @@ def run_for_candidate(candidate_id, resume_paths=None, github_username=None, kag
             for s, evid in kg.items():
                 skills_map[s].extend(evid)
 
-    # Canonicalize skills
+    # Canonicalize into allowed skills only
     all_tokens = list(skills_map.keys())
     if all_tokens:
-        canonical_map = canonicalize_skills_with_embeddings(all_tokens)
+        allowed = set(BASE_SKILL_LEXICON.values())
+        canonical_map = canonicalize_skills_with_embeddings(all_tokens, allowed_canonical=allowed)
         new_map = defaultdict(list)
         for tok, evids in skills_map.items():
             cm = canonical_map.get(tok)
-            canonical = cm["canonical_name"] if cm else tok
+            if not cm:
+                continue  # drop tokens that don't map to allowed skills
+            canonical = cm["canonical_name"]
             new_map[canonical].extend(evids)
         skills_map = new_map
 

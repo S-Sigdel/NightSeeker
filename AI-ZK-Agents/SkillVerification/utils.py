@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from .config import BASE_SKILL_LEXICON
 
 IMPORT_RE = re.compile(
@@ -17,13 +17,32 @@ def normalize_token(token):
         return BASE_SKILL_LEXICON[t]
     return token.capitalize()
 
+def normalize_to_lexicon(token):
+    t = (token or "").strip()
+    if not t:
+        return None
+    t_low = re.sub(r'[^A-Za-z0-9_\-+.#]', '', t).lower()
+    if t_low in BASE_SKILL_LEXICON:
+        return BASE_SKILL_LEXICON[t_low]
+    for canon in BASE_SKILL_LEXICON.values():
+        if canon.lower() == t_low:
+            return canon
+    return None
+
+def is_skill_token(token):
+    return normalize_to_lexicon(token) is not None
+
 def months_since(dt):
     if not dt: return 999
-    if isinstance(dt, datetime):
-        delta = datetime.utcnow() - dt
-    else:
-        try:
-            delta = datetime.utcnow() - datetime.fromtimestamp(dt)
-        except Exception:
-            return 999
-    return delta.days / 30.0
+    try:
+        if isinstance(dt, datetime):
+            d = dt
+        else:
+            d = datetime.fromtimestamp(float(dt), tz=timezone.utc)
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        delta = now - d.astimezone(timezone.utc)
+        return delta.days / 30.0
+    except Exception:
+        return 999

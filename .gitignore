@@ -1,9 +1,81 @@
-# Ignore all .env files (anywhere in the repo)
-*.env
-.env
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-# Ignore Python virtual environments
-venv/
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
 .venv/
-*/venv/
-*/.venv/
+venv/
+env/
+
+# Python tooling caches
+.mypy_cache/
+.pytest_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs and temp
+*.log
+logs/
+tmp/
+temp/
+.cache/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Node/JS/TS
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+dist/
+build/
+coverage/
+.nyc_output/
+.eslintcache
+.turbo/
+.next/
+.vercel/
+.vite/
+
+# Solidity (Hardhat/Foundry)
+artifacts/
+cache/
+out/
+broadcast/
+deployments/
+typechain/
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*.orig
+.DS_Store
+Thumbs.db
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z

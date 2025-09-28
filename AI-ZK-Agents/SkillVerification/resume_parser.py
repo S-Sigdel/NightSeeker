@@ -1,6 +1,6 @@
 import io, re
 import pdfplumber
-from .utils import normalize_token
+from .utils import normalize_token, normalize_to_lexicon
 from .config import BASE_SKILL_LEXICON
 
 def parse_resume_pdf_bytes(pdf_bytes):
@@ -21,8 +21,10 @@ def extract_skills_from_resume_text(text):
         tokens = re.split(r'[,\n;/•\u2022]+', block)
         for t in tokens:
             s = re.sub(r'[^a-zA-Z0-9_\-+#\. ]','', t).strip()
-            if s:
-                skills.append((normalize_token(s), "resume_skills_section"))
+            if not s: continue
+            canon = normalize_to_lexicon(s)
+            if canon:
+                skills.append((canon, "resume_skills_section"))
 
     for token in BASE_SKILL_LEXICON.keys():
         if re.search(r'\b'+re.escape(token)+r'\b', lower):

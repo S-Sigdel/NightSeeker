@@ -1,6 +1,6 @@
 import time, json, math
 import openai
-from .config import EMBED_MODEL, LLM_MODEL
+from .config import EMBED_MODEL, LLM_MODEL, USE_OPENAI, BASE_SKILL_LEXICON
 
 def get_embedding(text):
     resp = openai.Embeddings.create(model=EMBED_MODEL, input=text)
@@ -13,7 +13,16 @@ def cosine_sim(a,b):
     if na==0 or nb==0: return 0.0
     return dot/(na*nb)
 
-def canonicalize_skills_with_embeddings(skill_tokens):
+def canonicalize_skills_with_embeddings(skill_tokens, allowed_canonical=None):
+    allowed = set(allowed_canonical or BASE_SKILL_LEXICON.values())
+
+    if not USE_OPENAI:
+        # Keep only tokens already in allowed
+        return {
+            t: {"canonical_name": t, "synonyms": [t], "rationale": "in lexicon"}
+            for t in skill_tokens if t in allowed
+        }
+
     embeddings = {}
     for t in skill_tokens:
         embeddings[t] = get_embedding(t)
@@ -31,17 +40,18 @@ def canonicalize_skills_with_embeddings(skill_tokens):
         clusters.append(cluster)
 
     canonical_map = {}
+    allowed_list = sorted(list(allowed))
     for c in clusters:
         prompt = (
-            "You are a concise skill-normalizer. Given these raw tokens extracted from code/readmes/resume:\n\n"
-            f"{c}\n\n"
-            "Return a JSON object with fields: canonical_name (short),"
-            " synonyms (list), rationale (one-sentence). Only output JSON."
+            "You normalize raw tech tokens into a fixed skill list.\n"
+            f"Allowed skills ONLY: {allowed_list}\n"
+            f"Tokens: {c}\n"
+            "Return JSON: {\"canonical_name\": <one of allowed or NONE>, \"synonyms\": [...], \"rationale\": \"...\"}"
         )
         resp = openai.ChatCompletion.create(
             model=LLM_MODEL,
             messages=[
-                {"role":"system","content":"You normalize tokens to canonical tech skill names."},
+                {"role":"system","content":"Choose the closest allowed canonical skill or NONE if no match."},
                 {"role":"user","content":prompt}
             ],
             max_tokens=200,
@@ -50,15 +60,21 @@ def canonicalize_skills_with_embeddings(skill_tokens):
         txt = resp["choices"][0]["message"]["content"]
         try:
             j = json.loads(txt)
-            canonical_map.update({token: j for token in c})
+            name = j.get("canonical_name")
+            if name in allowed:
+                for token in c:
+                    canonical_map[token] = j
+            # else drop cluster (no mapping)
         except Exception:
-            can = sorted(c, key=lambda x: -len(x))[0].capitalize()
-            j = {"canonical_name": can, "synonyms": c, "rationale": "heuristic cluster fallback"}
-            canonical_map.update({token: j for token in c})
+            # drop cluster on parse error
+            pass
 
     return canonical_map
 
 def llm_explain_score(skill, evidence_snippets, base_confidence):
+    if not USE_OPENAI:
+        return 0, "no LLM adjustment"
+
     prompt = (
         f"Skill: {skill}\n\n"
         f"Evidence (short list):\n" + "\n".join(evidence_snippets[:8]) + "\n\n"
