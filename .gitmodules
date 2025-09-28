@@ -1,0 +1,3 @@
+[submodule "midnight-frontend"]
+	path = midnight-frontend
+	url = git@github.com:Prashant-koi/midnight-frontend.git
