@@ -56,14 +56,23 @@ NightSeeker leverages the Midnight Network's zero-knowledge cryptography to crea
 ### Frontend
 - **React + TypeScript**: Modern, type-safe user interface
 - **Wagmi + Web3Modal**: Seamless Web3 wallet integration
+- **MidnightJS**: Native Midnight Network wallet integration and transaction handling
 - **Tailwind CSS**: Responsive, modern design system
 - **React Router**: Client-side routing for smooth navigation
 
 ### Blockchain & Privacy
 - **Midnight Network**: Privacy-preserving blockchain for anonymous transactions
+- **Compact Language**: Midnight's smart contract language for ZK applications
 - **Zero-Knowledge Proofs**: Cryptographic verification without data exposure
-- **Smart Contracts**: Automated escrow and reputation management
+- **Smart Contracts**: Automated escrow, jobs, and reputation management
 - **Anonymous Commitments**: Skill and identity commitments using ZK technology
+- **Commitment/Nullifier Pattern**: Privacy-preserving state updates and authentication
+
+### Smart Contract Architecture
+- **Jobs Contract**: Anonymous job posting and verification using ZK commitments
+- **Escrow Contract**: Privacy-preserving payment escrow with ZK proof releases
+- **Reputation Contract**: Anonymous endorsement system with cryptographic commitments
+- **Skills Contract**: Skill verification and commitment storage with ZK proofs
 
 ### AI & Verification
 - **OpenAI Integration**: Advanced language models for skill analysis
@@ -74,6 +83,7 @@ NightSeeker leverages the Midnight Network's zero-knowledge cryptography to crea
 ### Backend Infrastructure
 - **Node.js + Express**: RESTful API server
 - **Python Integration**: AI processing and skill verification scripts
+- **Midnight SDK**: Backend integration with Midnight Network contracts
 - **File Processing**: Secure resume and document handling
 - **Database Privacy**: Encrypted storage with zero-knowledge architecture
 
@@ -84,18 +94,40 @@ Midnight/
 ├── midnight-frontend/          # React frontend application
 │   ├── src/
 │   │   ├── components/        # Reusable UI components
+│   │   │   └── Layout/        # Header, navigation, and layout components
 │   │   ├── pages/            # Main application pages
+│   │   │   ├── Home.tsx      # Landing page with features
+│   │   │   ├── Profile.tsx   # User profile and skill verification
+│   │   │   ├── Jobs.tsx      # Job browsing and search
+│   │   │   ├── CurrentJobs.tsx # Active job management
+│   │   │   └── Reputation.tsx # Reputation and endorsements
 │   │   ├── hooks/            # Custom React hooks
-│   │   ├── services/         # API integration
+│   │   ├── services/         # API integration and services
+│   │   ├── config/           # Web3 and MidnightJS configuration
+│   │   ├── data/             # Mock data for demo mode
 │   │   └── types/            # TypeScript definitions
 ├── middleware-api/            # Express backend server
 │   ├── src/
 │   │   ├── routes/           # API route handlers
+│   │   │   ├── skills.ts     # AI skill verification middleware
+│   │   │   ├── jobs.ts       # Jobs contract integration
+│   │   │   ├── escrow.ts     # Escrow contract middleware
+│   │   │   └── reputation.ts # Reputation system middleware
 │   │   └── server.ts         # Main server configuration
+├── contracts/                 # Compact smart contracts
+│   ├── Jobs.compact          # Anonymous job posting and management
+│   ├── Escrow.compact        # Privacy-preserving payment escrow
+│   └── Reputation.compact    # Anonymous reputation and endorsements
 ├── AI-ZK-Agents/             # AI skill verification system
 │   ├── SkillVerification/    # Core verification algorithms
-│   └── scripts/              # Processing scripts
+│   │   └── core.py          # Main skill analysis and LLM integration
+│   └── scripts/              # Processing and test scripts
+│       └── test_skill_verification.py
 └── frontend-usage/           # Midnight Network integration examples
+    ├── skills.ts             # Skills contract usage examples
+    ├── jobs.ts               # Jobs contract integration examples
+    ├── escrow.ts             # Escrow workflow examples
+    └── reputation.ts         # Reputation system examples
 ```
 
 ## 🚦 Getting Started
@@ -104,6 +136,7 @@ Midnight/
 - Node.js 18+
 - Python 3.8+
 - Git
+- Midnight Network compatible wallet
 
 ### Environment Setup
 1. **Clone the repository**
@@ -120,6 +153,7 @@ Midnight/
    # Add your API keys:
    OPENAI_API_KEY=your_openai_api_key
    GITHUB_TOKEN=your_github_token
+   VITE_WALLET_CONNECT_PROJECT_ID=your_walletconnect_project_id
    ```
 
 3. **Install Python dependencies**
@@ -150,9 +184,26 @@ Midnight/
 
 ## 🎯 How It Works
 
+### Smart Contract Architecture
+
+#### Jobs Contract (`Jobs.compact`)
+- **Anonymous Job Creation**: Employers submit cryptographic commitments to job data
+- **ZK Job Verification**: Prove job properties without revealing sensitive information
+- **Privacy-Preserving Matching**: Match candidates based on encrypted requirements
+
+#### Escrow Contract (`Escrow.compact`)
+- **Commitment-Based Escrow**: Funds locked using cryptographic commitments
+- **ZK Payment Release**: Release payments with zero-knowledge proofs
+- **Nullifier Prevention**: Prevent double-spending using unique nullifiers
+
+#### Reputation Contract (`Reputation.compact`)
+- **Anonymous Endorsements**: Submit endorsements without revealing identities
+- **Cryptographic Commitments**: Store reputation data as commitments
+- **ZK Reputation Proofs**: Prove reputation levels without exposing details
+
 ### Skill Verification Process
 1. **Upload Evidence**: Submit resume, GitHub profile, or portfolio
-2. **AI Analysis**: Advanced algorithms extract and analyze skills
+2. **AI Analysis**: Advanced algorithms extract and analyze skills using OpenAI
 3. **ZK Commitment**: Skills committed to blockchain with zero-knowledge proofs
 4. **Verification**: Cryptographic verification without revealing personal data
 
@@ -163,8 +214,8 @@ Midnight/
 4. **Secure Communication**: Encrypted messaging throughout hiring process
 
 ### Privacy-Preserving Payments
-1. **Smart Escrow**: Funds held in secure smart contracts
-2. **Milestone Payments**: Payments released based on work completion
+1. **Smart Escrow**: Funds held in Compact smart contracts
+2. **Milestone Payments**: Payments released based on work completion using ZK proofs
 3. **Anonymous Transactions**: All payments processed through Midnight Network
 4. **Reputation Building**: Anonymous feedback and reputation accumulation
 
@@ -175,26 +226,56 @@ Midnight/
 - **Anonymous Transactions**: Complete financial privacy through Midnight Network
 - **Secure Communication**: End-to-end encrypted messaging
 - **Verifiable Skills**: Authentic skill verification without identity exposure
+- **Commitment/Nullifier Pattern**: Industry-standard privacy-preserving architecture
 
 ## 🌟 Why NightSeeker?
 
-- **True Anonymity**: First employment platform with complete identity protection
+- **True Anonymity**: First employment platform with complete identity protection powered by Midnight Network
 - **Verified Talent**: Cryptographically proven skills eliminate fake profiles
 - **Global Access**: Work opportunities without geographic or identity barriers
-- **Secure Payments**: Anonymous, fast, and secure compensation
+- **Secure Payments**: Anonymous, fast, and secure compensation using Compact contracts
 - **Fair Matching**: Algorithm-based matching ensures merit-based hiring
+- **Privacy by Design**: Built from ground up with zero-knowledge architecture
+
+## 🔧 Technical Implementation
+
+### Compact Smart Contracts
+Our platform uses Midnight Network's Compact language to implement privacy-preserving smart contracts:
+
+- **Commitment Schemes**: Store encrypted data commitments on-chain
+- **Zero-Knowledge Circuits**: Verify computations without revealing inputs
+- **Nullifier Systems**: Prevent double-spending and replay attacks
+- **Witness-Based Proofs**: Private inputs validated through ZK proofs
+
+### MidnightJS Integration
+- **Wallet Connection**: Native Midnight Network wallet integration
+- **Transaction Handling**: Seamless ZK transaction processing
+- **Contract Interaction**: Direct communication with Compact contracts
+- **Proof Generation**: Client-side zero-knowledge proof creation
+
+### AI-Powered Verification
+- **Resume Analysis**: PDF parsing and skill extraction
+- **GitHub Integration**: Repository analysis for skill verification
+- **LLM Processing**: Advanced language models for skill assessment
+- **Confidence Scoring**: Machine learning-based skill confidence ratings
 
 ## 🛣 Roadmap
 
--  **Phase 1**: Core platform with AI skill verification
--  **Phase 2**: Full Midnight Network integration for complete anonymity
--  **Phase 3**: Advanced matching algorithms and reputation system
--  **Phase 4**: Mobile application and expanded verification methods
--  **Phase 5**: Decentralized governance and community features
+- ✅ **Phase 1**: Core platform with AI skill verification
+- 🔄 **Phase 2**: Full Midnight Network integration for complete anonymity
+- 📋 **Phase 3**: Advanced matching algorithms and reputation system
+- 📱 **Phase 4**: Mobile application and expanded verification methods
+- 🏛️ **Phase 5**: Decentralized governance and community features
 
 ## 🤝 Contributing
 
 We welcome contributions to make anonymous employment accessible globally. Please read our contributing guidelines and feel free to submit issues and pull requests.
+
+### Development Setup
+1. Follow the getting started guide above
+2. Review the Compact contract documentation
+3. Test with demo mode before wallet integration
+4. Ensure all ZK proofs are properly validated
 
 ## 📄 License
 
@@ -203,8 +284,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🔗 Links
 
 - [Midnight Network](https://midnight.network/)
-
+- [Compact Language Documentation](https://docs.midnight.network/)
+- [MidnightJS SDK](https://docs.midnight.network/develop/sdks/midnightjs)
+- [Zero-Knowledge Proofs Guide](https://docs.midnight.network/develop/how-midnight-works/keeping-data-private)
 
 ---
 
 **Built with privacy in mind. Powered by Midnight Network. 🌙**
+
+*Experience true anonymity in professional networking with cryptographically verified skills and zero-knowledge payments.*
