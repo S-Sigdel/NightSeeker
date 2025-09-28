@@ -1,3 +1,4 @@
+
 pragma language_version 0.16;
 
 import CompactStandardLibrary;
@@ -53,3 +54,32 @@ export circuit releasePayment(): [] {
 // - The DApp/user generates the commitment and the ZK proof off-chain, and only submits the proof and public data.
 // - This pattern is known as the "commitment/nullifier" pattern and is used for privacy-preserving authentication and state updates.
 // - See [Commitment/nullifier pattern](https://docs.midnight.network/develop/how-midnight-works/keeping-data-private#the-commitmentnullifier-pattern) for more details.
+//
+// update: 
+// // --- Ledger State ---
+// 
+// export ledger escrowCommitment: Bytes<32>;
+// export ledger escrowNullifiers: Set<Bytes<32>>;
+// 
+// // --- Witnesses ---
+// 
+// witness escrowSecret(): Bytes<32>;
+// witness releaseNullifier(): Bytes<32>;
+// 
+// // --- Circuits ---
+// 
+// export circuit fundEscrow(commitment: Bytes<32>): [] {
+//   escrowCommitment = commitment;
+// }
+// 
+// export circuit releasePayment(): [] {
+//   // Prove knowledge of escrowSecret and that it matches the on-chain commitment.
+//   assert(escrowCommitment == persistentHash<[Bytes<32>]>([escrowSecret()]), "Invalid escrow proof");
+// 
+//   // Prove that the escrowSecret encodes a 2% fee (enforced in the off-chain ZK proof).
+//   // For example, the proof must show: recipientAmount = totalAmount * 98 / 100, feeAmount = totalAmount * 2 / 100
+// 
+//   assert(!escrowNullifiers.member(releaseNullifier()), "Escrow already released");
+//   escrowNullifiers.insert(disclose(releaseNullifier()));
+//   // Payment and fee transfer logic must be handled off-chain or via integration with other primitives.
+// }
