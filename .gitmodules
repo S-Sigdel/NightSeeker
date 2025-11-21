@@ -1,3 +1,4 @@
 [submodule "midnight-frontend"]
 	path = midnight-frontend
-	url = git@github.com:Prashant-koi/midnight-frontend.git
+	url = https://github.com/Prashant-koi/midnight-frontend.git
+	branch = main
