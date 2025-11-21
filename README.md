@@ -173,12 +173,12 @@ Midnight/
    ```bash
    cd midnight-frontend
    npm install
-   npm run dev  # Runs on http://localhost:3000
+   npm run dev  # Runs on http://localhost:5173
    ```
 
 ### Testing the Platform
 1. **Try Demo Mode**: Experience the platform without wallet connection
-2. **Upload Skills**: Test AI verification with resume/GitHub profile
+2. **Upload Skills**: Test AI verification with resume/GitHub profile (requires middleware API running)
 3. **Browse Jobs**: Explore anonymous job opportunities
 4. **Connect Wallet**: For full anonymous functionality (requires Midnight Network wallet)
 
